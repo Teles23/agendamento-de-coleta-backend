@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CollectionRequest {
+  id               String   @id @default(uuid())
+  protocol         String   @unique
+  citizenName      String
+  street           String
+  number           String
+  neighborhood      String
+  city             String
+  phone            String
+  email            String?
+  suggestedDate    DateTime
+  status           Status   @default(PENDENTE)
+  justification    String?
+  materials        CollectionMaterial[]
+  lastStatusUpdate DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Material {
+  id          String               @id @default(uuid())
+  name        String               @unique
+  description String?
+  category    String?
+  active      Boolean              @default(true)
+  collections CollectionMaterial[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+}
+
+model CollectionMaterial {
+  collectionRequestId String
+  materialId          String
+  collectionRequest   CollectionRequest @relation(fields: [collectionRequestId], references: [id])
+  material            Material         @relation(fields: [materialId], references: [id])
+
+  @@id([collectionRequestId, materialId])
+}
+
+enum Status {
+  PENDENTE
+  AGENDADO
+  CONCLUIDO
+  CANCELADO
+}
