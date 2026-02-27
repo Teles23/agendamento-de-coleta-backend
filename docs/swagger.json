@@ -1,0 +1,334 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Agendamento de Coleta de Recicláveis",
+        "description": "Documentação da API para o sistema de coleta de materiais recicláveis. Permite o agendamento por cidadãos e a gestão administrativa das solicitações.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3020/api",
+            "description": "Servidor de Desenvolvimento"
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        },
+        "schemas": {
+            "Material": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "CollectionRequest": {
+                "type": "object",
+                "required": [
+                    "citizenName",
+                    "street",
+                    "number",
+                    "neighborhood",
+                    "city",
+                    "phone",
+                    "suggestedDate",
+                    "materialIds"
+                ],
+                "properties": {
+                    "citizenName": {
+                        "type": "string",
+                        "example": "Thiago Silveira"
+                    },
+                    "street": {
+                        "type": "string",
+                        "example": "Rua das Flores"
+                    },
+                    "number": {
+                        "type": "string",
+                        "example": "123"
+                    },
+                    "neighborhood": {
+                        "type": "string",
+                        "example": "Centro"
+                    },
+                    "city": {
+                        "type": "string",
+                        "example": "São Paulo"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "11999999999"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "suggestedDate": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-12-30"
+                    },
+                    "materialIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "example": [
+                            "uuid-1",
+                            "uuid-2"
+                        ]
+                    }
+                }
+            },
+            "AuthResponse": {
+                "type": "object",
+                "properties": {
+                    "token": {
+                        "type": "string"
+                    },
+                    "user": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "email": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Realiza login administrativo",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login realizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/collections": {
+            "post": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Cria um novo agendamento (Público)",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CollectionRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Agendamento criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "protocol": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Lista todos os agendamentos (Admin)",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de agendamentos"
+                    }
+                }
+            }
+        },
+        "/collections/:id": {
+            "get": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Detalha um agendamento específico (Admin)",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do agendamento"
+                    },
+                    "404": {
+                        "description": "Agendamento não encontrado"
+                    }
+                }
+            }
+        },
+        "/collections/:id/status": {
+            "patch": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Atualiza o status de um agendamento (Admin)",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "AGENDADO",
+                                            "CONCLUIDO",
+                                            "CANCELADO"
+                                        ]
+                                    },
+                                    "justification": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status atualizado com sucesso"
+                    }
+                }
+            }
+        },
+        "/materials": {
+            "get": {
+                "tags": [
+                    "Materiais"
+                ],
+                "summary": "Lista materiais disponíveis (Público)",
+                "responses": {
+                    "200": {
+                        "description": "Lista de materiais",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Material"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
