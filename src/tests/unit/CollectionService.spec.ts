@@ -1,6 +1,5 @@
+import { addDays, format } from 'date-fns';
 import { CollectionService } from '../../services/CollectionService';
-import { Status } from '@prisma/client';
-import { addDays, format, nextMonday, isWeekend } from 'date-fns';
 
 // Mocking Prisma
 jest.mock('@prisma/client', () => {
