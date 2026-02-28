@@ -1,11 +1,33 @@
 import { PrismaClient, Status } from "@prisma/client";
-import { addDays, isWeekend, startOfDay } from "date-fns";
+import { addDays, isWeekend, startOfDay, format } from "date-fns";
 
 const prisma = new PrismaClient();
 
+// --- Tipos ---
+interface CreateCollectionData {
+  citizenName: string;
+  street: string;
+  number: string;
+  neighborhood: string;
+  city: string;
+  phone: string;
+  email?: string;
+  suggestedDate: string;
+  materialIds: string[];
+}
+
+interface ListCollectionFilters {
+  status?: Status;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
 export class CollectionService {
+  // -------------------------------------------------------
+  // Helpers de data
+  // -------------------------------------------------------
+
   private isBusinessDay(date: Date): boolean {
-    // Basic check for weekends. Formal holidays would need a library or db table.
     return !isWeekend(date);
   }
 
@@ -21,17 +43,21 @@ export class CollectionService {
     return result;
   }
 
-  async create(data: {
-    citizenName: string;
-    street: string;
-    number: string;
-    neighborhood: string;
-    city: string;
-    phone: string;
-    email?: string;
-    suggestedDate: string;
-    materialIds: string[];
-  }) {
+  /**
+   * Gera um protocolo único no formato AG-YYYYMMDD-XXXXXX
+   * Legível e rastreável por data de criação.
+   */
+  private generateProtocol(): string {
+    const datePart = format(new Date(), "yyyyMMdd");
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `AG${datePart}${randomPart}`;
+  }
+
+  // -------------------------------------------------------
+  // CRUD
+  // -------------------------------------------------------
+
+  async create(data: CreateCollectionData) {
     const suggestedDate = startOfDay(new Date(data.suggestedDate));
     const now = startOfDay(new Date());
 
@@ -40,12 +66,26 @@ export class CollectionService {
 
     if (suggestedDate < minimumDate) {
       throw new Error(
-        `A data sugerida deve ser a partir de ${minimumDate.toLocaleDateString("pt-BR")}.`,
+        `A data sugerida deve ser a partir de ${minimumDate.toLocaleDateString("pt-BR")} (mínimo 2 dias úteis).`,
       );
     }
 
-    // RN001.5: Geração de protocolo único
-    const protocol = `AG${Date.now()}${Math.floor(Math.random() * 1000)}`;
+    // RN001.3: Validar se todos os materiais existem
+    if (!data.materialIds || data.materialIds.length === 0) {
+      throw new Error("Selecione ao menos um tipo de material.");
+    }
+
+    const materials = await prisma.material.findMany({
+      where: { id: { in: data.materialIds }, active: true },
+    });
+
+    if (materials.length !== data.materialIds.length) {
+      throw new Error(
+        "Um ou mais materiais informados são inválidos ou estão inativos.",
+      );
+    }
+
+    const protocol = this.generateProtocol();
 
     const collectionRequest = await prisma.collectionRequest.create({
       data: {
@@ -67,9 +107,7 @@ export class CollectionService {
       },
       include: {
         materials: {
-          include: {
-            material: true,
-          },
+          include: { material: true },
         },
       },
     });
@@ -77,30 +115,26 @@ export class CollectionService {
     return collectionRequest;
   }
 
-  async list(filters: { status?: Status; dateFrom?: string; dateTo?: string }) {
-    const where: any = {};
+  async list(filters: ListCollectionFilters) {
+    const where: Record<string, unknown> = {};
 
     if (filters.status) {
       where.status = filters.status;
     }
 
     if (filters.dateFrom || filters.dateTo) {
-      where.suggestedDate = {};
-      if (filters.dateFrom)
-        where.suggestedDate.gte = new Date(filters.dateFrom);
-      if (filters.dateTo) where.suggestedDate.lte = new Date(filters.dateTo);
+      where.suggestedDate = {
+        ...(filters.dateFrom && { gte: new Date(filters.dateFrom) }),
+        ...(filters.dateTo && { lte: new Date(filters.dateTo) }),
+      };
     }
 
     return prisma.collectionRequest.findMany({
       where,
-      orderBy: {
-        suggestedDate: "asc",
-      },
+      orderBy: { suggestedDate: "asc" }, // RN003.4: mais próximos primeiro
       include: {
         materials: {
-          include: {
-            material: true,
-          },
+          include: { material: true },
         },
       },
     });
@@ -111,9 +145,7 @@ export class CollectionService {
       where: { id },
       include: {
         materials: {
-          include: {
-            material: true,
-          },
+          include: { material: true },
         },
       },
     });
@@ -126,20 +158,31 @@ export class CollectionService {
   }
 
   async updateStatus(id: string, status: Status, justification?: string) {
+    // RN005.1: Validar enum de status
+    const validStatuses = Object.values(Status);
+    if (!validStatuses.includes(status)) {
+      throw new Error(`Status inválido. Use: ${validStatuses.join(", ")}.`);
+    }
+
     // RN005.3: Justificativa obrigatória para CONCLUIDO ou CANCELADO
     if (
       (status === Status.CONCLUIDO || status === Status.CANCELADO) &&
-      !justification
+      !justification?.trim()
     ) {
-      throw new Error("Justificativa é obrigatória para este status.");
+      throw new Error(
+        "Justificativa é obrigatória ao concluir ou cancelar um agendamento.",
+      );
     }
+
+    // Verificar se o agendamento existe antes de atualizar
+    await this.detail(id);
 
     return prisma.collectionRequest.update({
       where: { id },
       data: {
         status,
-        justification: justification || null,
-        lastStatusUpdate: new Date(),
+        justification: justification?.trim() || null,
+        lastStatusUpdate: new Date(), // RN005.2
       },
     });
   }

@@ -1,53 +1,84 @@
-import request from 'supertest';
-import { app } from '../../app';
+import request from "supertest";
+import { addDays, format } from "date-fns";
+import { app } from "../../app";
 
-// Mocking Prisma at the module level for API tests
-jest.mock('@prisma/client', () => {
-  const actualPrisma = jest.requireActual('@prisma/client');
+// Mock Prisma para testes de API
+jest.mock("@prisma/client", () => {
+  const { Status } = { Status: { PENDENTE: "PENDENTE", AGENDADO: "AGENDADO", CONCLUIDO: "CONCLUIDO", CANCELADO: "CANCELADO" } };
   return {
-    ...actualPrisma,
     PrismaClient: jest.fn().mockImplementation(() => ({
       collectionRequest: {
         create: jest.fn().mockResolvedValue({
-          id: 'uuid-test',
-          protocol: 'AG_TEST_123',
-          citizenName: 'Thiago Test',
-          status: 'PENDENTE'
+          id: "uuid-test",
+          protocol: "AG-20261230-ABCDEF",
+          citizenName: "Thiago Test",
+          status: "PENDENTE",
+          materials: [],
         }),
+        findMany: jest.fn().mockResolvedValue([]),
+        findUnique: jest.fn().mockResolvedValue(null),
+      },
+      material: {
+        findMany: jest.fn().mockResolvedValue([{ id: "mat-1", active: true }]),
+      },
+      user: {
+        findUnique: jest.fn().mockResolvedValue(null),
       },
     })),
+    Status,
   };
 });
 
-describe('POST /api/collections', () => {
-  it('should create a new collection request', async () => {
-    const response = await request(app)
-      .post('/api/collections')
-      .send({
-        citizenName: 'Thiago Test',
-        street: 'Rua Teste',
-        number: '123',
-        neighborhood: 'Centro',
-        city: 'Cidade Teste',
-        phone: '11999999999',
-        suggestedDate: '2026-12-31', // Future date
-        materialIds: ['material-id-1']
-      });
+const futureDate = format(addDays(new Date(), 10), "yyyy-MM-dd");
 
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty('protocol');
-    expect(response.body.message).toBe('Agendamento realizado com sucesso!');
+const validPayload = {
+  citizenName: "Thiago Test",
+  street: "Rua Teste",
+  number: "123",
+  neighborhood: "Centro",
+  city: "Cidade Teste",
+  phone: "11999999999",
+  suggestedDate: futureDate,
+  materialIds: ["mat-1"],
+};
+
+describe("POST /api/collections", () => {
+  it("201 - deve criar agendamento com dados válidos", async () => {
+    const res = await request(app).post("/api/collections").send(validPayload);
+
+    expect(res.status).toBe(201);
+    expect(res.body).toHaveProperty("protocol");
+    expect(res.body.message).toBe("Agendamento realizado com sucesso!");
   });
 
-  it('should return 400 if required fields are missing', async () => {
-    const response = await request(app)
-      .post('/api/collections')
-      .send({
-        citizenName: 'Thiago Test'
-        // missing other fields
-      });
+  it("400 - deve rejeitar quando faltam campos obrigatórios", async () => {
+    const res = await request(app).post("/api/collections").send({ citizenName: "Thiago" });
 
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe('Todos os campos obrigatórios devem ser preenchidos.');
+    expect(res.status).toBe(400);
+    expect(res.body.message).toBe("Todos os campos obrigatórios devem ser preenchidos.");
+    expect(res.body).toHaveProperty("fields");
+  });
+
+  it("400 - deve rejeitar telefone com formato inválido", async () => {
+    const res = await request(app)
+      .post("/api/collections")
+      .send({ ...validPayload, phone: "123" }); // muito curto
+
+    expect(res.status).toBe(400);
+    expect(res.body.message).toMatch(/telefone/i);
+  });
+});
+
+describe("GET /api/collections (rota protegida)", () => {
+  it("401 - deve rejeitar sem token", async () => {
+    const res = await request(app).get("/api/collections");
+    expect(res.status).toBe(401);
+  });
+
+  it("401 - deve rejeitar com token malformado", async () => {
+    const res = await request(app)
+      .get("/api/collections")
+      .set("Authorization", "Bearer token_invalido");
+    expect(res.status).toBe(401);
   });
 });
