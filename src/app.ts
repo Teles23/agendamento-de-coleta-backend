@@ -6,12 +6,12 @@ import swaggerDocument from "../docs/swagger.json";
 
 const app = express();
 
-// CORS configurado para aceitar requisições de qualquer origem (desenvolvimento)
+// CORS configurado para aceitar requisições apenas da origem do frontend
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    credentials: false,
+    credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
