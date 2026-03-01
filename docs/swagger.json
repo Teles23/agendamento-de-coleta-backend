@@ -329,6 +329,116 @@
                     }
                 }
             }
+        },
+        "/ai/classify": {
+            "post": {
+                "tags": [
+                    "IA (Inteligência Artificial)"
+                ],
+                "summary": "Classifica materiais recicláveis com base em texto (Público)",
+                "description": "Usa o Google Gemini para analisar uma string de descrição e identificar quais materiais recicláveis estão presentes.",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Tenho latas de refrigerante e revistas."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Classificação de materiais concluída",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "boolean"
+                                            },
+                                            "example": {
+                                                "Metal": true,
+                                                "Papel": true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ai/optimize-routes": {
+            "post": {
+                "tags": [
+                    "IA (Inteligência Artificial)"
+                ],
+                "summary": "Otimiza rotas de coleta (Admin)",
+                "description": "Usa o Google Gemini para gerar uma recomendação de rotas logísticas com base na lista de coletas pendentes.",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "collections": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        },
+                                        "example": [
+                                            {
+                                                "citizenName": "João",
+                                                "neighborhood": "Centro",
+                                                "materials": [
+                                                    {
+                                                        "name": "Papel"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Recomendação de rotas otimizada via IA",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {
+                                            "type": "string",
+                                            "example": "Sugestão de rota: começar pelo Centro e terminar na Zona Norte."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
