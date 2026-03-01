@@ -115,6 +115,8 @@ A documentação Swagger estará em: **http://localhost:3000/api-docs**
 | `DATABASE_URL`   | String de conexão com o PostgreSQL                 | `postgresql://postgres:postgres@localhost:5432/...` |
 | `JWT_SECRET`     | Chave secreta para assinar tokens JWT              | *(obrigatório — sem padrão seguro em produção)*     |
 | `JWT_EXPIRES_IN` | Tempo de expiração do token                        | `1d`                                                |
+| `GEMINI_API_KEY` | Chave de API do Google Gemini para recursos de IA  | `""` *(vazio por padrão)*                           |
+| `FRONTEND_URL`   | URL do frontend para restrição de CORS             | `http://localhost:5173`                             |
 
 > 💡 Para gerar um `JWT_SECRET` seguro:
 > ```bash
@@ -191,6 +193,8 @@ Configure no painel do provedor (não em arquivo):
 ```
 DATABASE_URL=postgresql://user:pass@host:5432/dbname
 JWT_SECRET=<string-longa-e-aleatoria>
+GEMINI_API_KEY=<sua-chave-gemini>
+FRONTEND_URL=https://seu-frontend.com
 NODE_ENV=production
 PORT=3000
 ```
@@ -268,6 +272,14 @@ Pontos identificados durante o desenvolvimento e revisão:
 3. **Timing attack no login**
    - **Problema original**: Se o usuário não existir, o bcrypt não era executado, tornando a resposta mais rápida e revelando que o e-mail não existe no banco.
    - **Correção aplicada**: `bcrypt.compare` é executado mesmo quando o usuário não é encontrado.
+
+4. **Chave de API do Gemini Exposta**
+   - **Problema original**: A API Key do Gemini ficava exposta publicamente no bundle do frontend (usando Vite).
+   - **Correção aplicada**: A comunicação com o Gemini foi movida para o Backend (`AiService` e `AiController`), garantindo a segurança do segredo.
+
+5. **CORS Excessivamente Permissivo**
+   - **Problema original**: O CORS permitia requisições de origem `*`.
+   - **Correção aplicada**: O CORS passou a permitir apenas requisições nativas da origem definida em `FRONTEND_URL`.
 
 #### 🟡 Importante (qualidade / robustez)
 
