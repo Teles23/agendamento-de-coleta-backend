@@ -15,8 +15,10 @@ export class AuthController {
       const result = await authService.login(email, password);
 
       return res.json(result);
-    } catch (error: any) {
-      return res.status(401).json({ message: error.message || 'Erro ao realizar login.' });
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erro ao realizar login.';
+      const statusCode = message === 'E-mail ou senha inválidos.' ? 401 : 500;
+      return res.status(statusCode).json({ message });
     }
   }
 }
