@@ -1,7 +1,6 @@
-import { PrismaClient, Status } from "@prisma/client";
+import { Status } from "@prisma/client";
 import { addDays, isWeekend, startOfDay, format } from "date-fns";
-
-const prisma = new PrismaClient();
+import { prisma } from "../lib/prisma";
 
 // --- Tipos ---
 interface CreateCollectionData {
