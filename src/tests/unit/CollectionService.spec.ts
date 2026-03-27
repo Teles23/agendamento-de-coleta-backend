@@ -1,83 +1,94 @@
-import { CollectionService } from '../../services/CollectionService';
-import { Status } from '@prisma/client';
-import { addDays, format, nextMonday, isWeekend } from 'date-fns';
+import { addDays, format, nextMonday } from "date-fns";
+import { CollectionService } from "../../services/CollectionService";
 
-// Mocking Prisma
-jest.mock('@prisma/client', () => {
-  return {
-    PrismaClient: jest.fn().mockImplementation(() => ({
-      collectionRequest: {
-        create: jest.fn().mockResolvedValue({ protocol: 'AG12345' }),
-      },
-      material: {
-        findMany: jest.fn(),
-      },
-    })),
-    Status: {
-      PENDENTE: 'PENDENTE',
-      AGENDADO: 'AGENDADO',
-      CONCLUIDO: 'CONCLUIDO',
-      CANCELADO: 'CANCELADO',
+// Mock Prisma
+jest.mock("@prisma/client", () => ({
+  PrismaClient: jest.fn().mockImplementation(() => ({
+    collectionRequest: {
+      create: jest.fn().mockResolvedValue({ protocol: "AG-20260228-ABCDEF" }),
     },
-  };
+    material: {
+      findMany: jest.fn().mockResolvedValue([{ id: "mat-1", active: true }]),
+    },
+  })),
+  Status: {
+    PENDENTE: "PENDENTE",
+    AGENDADO: "AGENDADO",
+    CONCLUIDO: "CONCLUIDO",
+    CANCELADO: "CANCELADO",
+  },
+}));
+
+const buildValidData = (suggestedDate: string) => ({
+  citizenName: "Thiago Silveira",
+  street: "Rua das Flores",
+  number: "123",
+  neighborhood: "Centro",
+  city: "São Paulo",
+  phone: "11999999999",
+  suggestedDate,
+  materialIds: ["mat-1"],
 });
 
-describe('CollectionService', () => {
-  let collectionService: CollectionService;
+describe("CollectionService", () => {
+  let service: CollectionService;
 
   beforeEach(() => {
-    collectionService = new CollectionService();
+    service = new CollectionService();
+    jest.clearAllMocks();
   });
 
-  it('should generate a protocol starting with AG', async () => {
-    const data = {
-      citizenName: 'Thiago',
-      street: 'Rua A',
-      number: '123',
-      neighborhood: 'Bairro B',
-      city: 'Cidade C',
-      phone: '123456789',
-      suggestedDate: format(addDays(new Date(), 7), 'yyyy-MM-dd'),
-      materialIds: ['1'],
-    };
-
-    const result = await collectionService.create(data);
-    expect(result.protocol).toMatch(/^AG/);
+  // --- Protocolo ---
+  describe("generateProtocol", () => {
+    it("deve gerar protocolo no formato AG-YYYYMMDD-XXXXXX", async () => {
+      const futureDate = format(addDays(new Date(), 10), "yyyy-MM-dd");
+      const result = await service.create(buildValidData(futureDate));
+      expect(result.protocol).toMatch(/^AG-\d{8}-[A-Z0-9]{6}$/);
+    });
   });
 
-  it('should fail if suggested date is less than 2 business days away', async () => {
-    const today = new Date();
-    const invalidDate = format(today, 'yyyy-MM-dd'); // Today is invalid
+  // --- Validação de data ---
+  describe("validação de data (RN001.2)", () => {
+    it("deve rejeitar data de hoje", async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+      await expect(service.create(buildValidData(today))).rejects.toThrow(
+        /mínimo 2 dias úteis/
+      );
+    });
 
-    const data = {
-      citizenName: 'Thiago',
-      street: 'Rua A',
-      number: '123',
-      neighborhood: 'Bairro B',
-      city: 'Cidade C',
-      phone: '123456789',
-      suggestedDate: invalidDate,
-      materialIds: ['1'],
-    };
+    it("deve rejeitar data de amanhã", async () => {
+      const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
+      await expect(service.create(buildValidData(tomorrow))).rejects.toThrow(
+        /mínimo 2 dias úteis/
+      );
+    });
 
-    await expect(collectionService.create(data)).rejects.toThrow(/A data sugerida deve ser a partir de/);
+    it("deve aceitar data com 10 dias de antecedência", async () => {
+      const futureDate = format(addDays(new Date(), 10), "yyyy-MM-dd");
+      const result = await service.create(buildValidData(futureDate));
+      expect(result).toBeDefined();
+    });
+
+    it("deve aceitar data que é uma próxima segunda-feira com pelo menos 2 dias úteis", async () => {
+      // Garante que a data calculada tenha sempre antecedência suficiente
+      const safeDate = format(nextMonday(addDays(new Date(), 7)), "yyyy-MM-dd");
+      const result = await service.create(buildValidData(safeDate));
+      expect(result).toBeDefined();
+    });
   });
 
-  it('should accept a date that is clearly more than 2 business days away', async () => {
-    const safeDate = format(addDays(new Date(), 10), 'yyyy-MM-dd');
+  // --- Status ---
+  describe("updateStatus (RN005.3)", () => {
+    it("deve exigir justificativa ao cancelar", async () => {
+      await expect(
+        service.updateStatus("some-id", "CANCELADO" as any)
+      ).rejects.toThrow(/Justificativa é obrigatória/);
+    });
 
-    const data = {
-      citizenName: 'Thiago',
-      street: 'Rua A',
-      number: '123',
-      neighborhood: 'Bairro B',
-      city: 'Cidade C',
-      phone: '123456789',
-      suggestedDate: safeDate,
-      materialIds: ['1'],
-    };
-
-    const result = await collectionService.create(data);
-    expect(result).toBeDefined();
+    it("deve exigir justificativa ao concluir", async () => {
+      await expect(
+        service.updateStatus("some-id", "CONCLUIDO" as any)
+      ).rejects.toThrow(/Justificativa é obrigatória/);
+    });
   });
 });

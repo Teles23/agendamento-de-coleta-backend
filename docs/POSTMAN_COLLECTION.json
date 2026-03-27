@@ -1,0 +1,374 @@
+{
+    "info": {
+        "_postman_id": "e4a2b1c0-7d8e-4f9a-9b2c-3d4e5f6g7h8i",
+        "name": "Agendamento de Coleta de Recicláveis",
+        "description": "API para o sistema de agendamento de coleta de materiais recicláveis. Inclui rotas públicas para cidadãos e rotas protegidas para administração.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Autenticação",
+            "item": [
+                {
+                    "name": "Login Administrativo",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"admin@coleta.com\",\n    \"password\": \"admin123\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/login",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "description": "Realiza o login administrativo e retorna o Bearer Token para as rotas protegidas."
+                    },
+                    "response": [
+                        {
+                            "name": "Sucesso",
+                            "originalRequest": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"email\": \"admin@coleta.com\",\n    \"password\": \"admin123\"\n}"
+                                },
+                                "url": "{{baseUrl}}/api/auth/login"
+                            },
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n    \"user\": {\n        \"id\": \"uuid\",\n        \"name\": \"Administrador\",\n        \"email\": \"admin@coleta.com\"\n    }\n}"
+                        }
+                    ]
+                }
+            ],
+            "description": "Endpoints relacionados à segurança e acesso."
+        },
+        {
+            "name": "Agendamentos (Público)",
+            "item": [
+                {
+                    "name": "Criar Solicitação de Coleta",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"citizenName\": \"Thiago Silveira\",\n    \"street\": \"Rua das Flores\",\n    \"number\": \"123\",\n    \"neighborhood\": \"Centro\",\n    \"city\": \"São Paulo\",\n    \"phone\": \"11999999999\",\n    \"email\": \"thiago@email.com\",\n    \"suggestedDate\": \"2026-12-30\",\n    \"materialIds\": [\"uuid-vidro\", \"uuid-papel\"]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/collections",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "collections"
+                            ]
+                        },
+                        "description": "Cria uma nova solicitação de coleta. A data deve ter antecedência mínima de 2 dias úteis."
+                    },
+                    "response": [
+                        {
+                            "name": "Sucesso",
+                            "status": "Created",
+                            "code": 201,
+                            "_postman_previewlanguage": "json",
+                            "body": "{\n    \"message\": \"Agendamento realizado com sucesso!\",\n    \"protocol\": \"AG20260226-001\",\n    \"collection\": {\n        \"id\": \"uuid\",\n        \"protocol\": \"AG20260226-001\",\n        \"citizenName\": \"Thiago Silveira\",\n        \"status\": \"PENDENTE\"\n    }\n}"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Materiais (Público)",
+            "item": [
+                {
+                    "name": "Listar Materiais",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/materials",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "materials"
+                            ]
+                        },
+                        "description": "Retorna a lista de materiais recicláveis aceitos pelo sistema."
+                    },
+                    "response": [
+                        {
+                            "name": "Sucesso",
+                            "status": "OK",
+                            "code": 200,
+                            "_postman_previewlanguage": "json",
+                            "body": "[\n    {\n        \"id\": \"uuid-1\",\n        \"name\": \"Papel\",\n        \"category\": \"Reciclável\"\n    },\n    {\n        \"id\": \"uuid-2\",\n        \"name\": \"Vidro\",\n        \"category\": \"Reciclável\"\n    }\n]"
+                        }
+                    ]
+                },
+                {
+                    "name": "Classificar Materiais (IA)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"description\": \"tenho papelão, garrafas de vidro e fios velhos\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/ai/classify",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "ai",
+                                "classify"
+                            ]
+                        },
+                        "description": "Classifica os materiais recicláveis usando IA (Google Gemini)."
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Gestão Administrativa",
+            "item": [
+                {
+                    "name": "Listar Agendamentos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/collections?status=PENDENTE&dateFrom=2026-01-01",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "collections"
+                            ],
+                            "query": [
+                                {
+                                    "key": "status",
+                                    "value": "PENDENTE",
+                                    "description": "Filtrar por status (PENDENTE, AGENDADO, CONCLUIDO, CANCELADO)"
+                                },
+                                {
+                                    "key": "dateFrom",
+                                    "value": "2026-01-01",
+                                    "description": "Data inicial (AAAA-MM-DD)"
+                                }
+                            ]
+                        },
+                        "description": "Lista todos os agendamentos com filtros opcionais."
+                    }
+                },
+                {
+                    "name": "Detalhar Agendamento",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/collections/:id",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "collections",
+                                ":id"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "id-do-agendamento"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Atualizar Status",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": \"AGENDADO\",\n    \"justification\": \"Coleta confirmada para o turno da manhã.\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/collections/:id/status",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "collections",
+                                ":id",
+                                "status"
+                            ],
+                            "variable": [
+                                {
+                                    "key": "id",
+                                    "value": "id-do-agendamento"
+                                }
+                            ]
+                        },
+                        "description": "Atualiza o status de um agendamento. Status permitidos: AGENDADO, CONCLUIDO, CANCELADO."
+                    }
+                },
+                {
+                    "name": "Materiais",
+                    "item": [
+                        {
+                            "name": "Criar Material",
+                            "request": {
+                                "method": "POST",
+                                "header": [],
+                                "body": {
+                                    "mode": "raw",
+                                    "raw": "{\n    \"name\": \"Bateria\",\n    \"description\": \"Pilhas e baterias usadas\",\n    \"category\": \"Perigoso\"\n}",
+                                    "options": {
+                                        "raw": {
+                                            "language": "json"
+                                        }
+                                    }
+                                },
+                                "url": "{{baseUrl}}/api/materials"
+                            }
+                        },
+                        {
+                            "name": "Remover Material",
+                            "request": {
+                                "method": "DELETE",
+                                "header": [],
+                                "url": {
+                                    "raw": "{{baseUrl}}/api/materials/:id",
+                                    "host": [
+                                        "{{baseUrl}}"
+                                    ],
+                                    "path": [
+                                        "api",
+                                        "materials",
+                                        ":id"
+                                    ],
+                                    "variable": [
+                                        {
+                                            "key": "id",
+                                            "value": ""
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "Otimizar Rotas (IA)",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"collections\": [\n        {\n            \"citizenName\": \"João\",\n            \"neighborhood\": \"Centro\",\n            \"materials\": [{\"name\": \"Papel\"}]\n        },\n        {\n            \"citizenName\": \"Maria\",\n            \"neighborhood\": \"Vila Nova\",\n            \"materials\": [{\"name\": \"Vidro\"}]\n        }\n    ]\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/ai/optimize-routes",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "ai",
+                                "optimize-routes"
+                            ]
+                        },
+                        "description": "Recebe recomendações otimizadas de rota logística através de IA."
+                    }
+                }
+            ],
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "{{adminToken}}",
+                        "type": "string"
+                    }
+                ]
+            },
+            "description": "Operações que exigem autenticação JWT."
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "adminToken",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

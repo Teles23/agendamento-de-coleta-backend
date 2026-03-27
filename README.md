@@ -1,78 +1,165 @@
-# Backend - Agendamento de Coleta de Recicláveis
+# Backend - Agendamento de Coleta de Reciclaveis
 
-Este é o backend da aplicação de agendamento de coleta de materiais recicláveis, desenvolvido como parte da prova prática.
+Backend em `Node.js + Express + Prisma` para o sistema de agendamento de coleta. A aplicacao usa `PostgreSQL` e esta configurada para rodar com `Neon Postgres` em desenvolvimento e producao.
 
-## Tecnologias Utilizadas
-- **Node.js**: Runtime Javascript.
-- **Express**: Framework para API HTTP.
-- **Prisma**: ORM para comunicação com PostgreSQL.
-- **PostgreSQL**: Banco de dados relacional.
-- **JWT (Json Web Token)**: Autenticação administrativa.
-- **Jest & Supertest**: Testes unitários e de API.
-- **Docker**: Orquestração do banco de dados.
+## Stack
 
-## Configuração e Execução (RQNF7)
+- Node.js 20+
+- Express
+- Prisma
+- PostgreSQL / Neon
+- JWT
+- Jest + Supertest
+- TypeScript
 
-### Pré-requisitos
-- Node.js v20+
-- Docker & Docker Compose
+## Variaveis de ambiente
 
-### Passos
-1. **Instalar dependências**:
-   ```bash
-   cd backend
-   npm install
-   ```
+Copie `.env.example` para `.env` e preencha:
 
-2. **Subir Banco de Dados**:
-   ```bash
-   docker-compose up -d
-   ```
+```bash
+cp .env.example .env
+```
 
-3. **Configurar Variáveis de Ambiente**:
-   O arquivo `.env` já contém as configurações padrão. Ajuste o `JWT_SECRET` se necessário.
+Variaveis obrigatorias:
 
-4. **Rodar Migrações e Seed**:
-   ```bash
-   npx prisma migrate dev
-   npx prisma db seed
-   ```
+- `DATABASE_URL`: connection string pooled do Neon para a aplicacao em runtime
+- `DIRECT_URL`: connection string direct do Neon para migrations do Prisma
+- `JWT_SECRET`: segredo forte para assinatura JWT
+- `FRONTEND_URL`: URL publica do frontend
+- `NODE_ENV`: `development` ou `production`
+- `PORT`: porta HTTP do backend
 
-5. **Iniciar Servidor**:
-   ```bash
-   npm run dev
-   ```
-   A API estará disponível em `http://localhost:3000`.
+Observacao sobre Neon:
 
-## Documentação Técnica
+- Use a URL `pooled` em `DATABASE_URL`
+- Use a URL `direct` em `DIRECT_URL`
+- Nao crie tabelas manualmente no painel do Neon; o schema nasce pelas migrations do Prisma
 
-### Especificações Gherkin (RQNF9)
-As especificações de uso em formato Gherkin podem ser encontradas em: `backend/docs/specs/collection.feature`.
+## Desenvolvimento local com Neon
 
-### Plano de Testes (RQNF10)
-Localização: `backend/docs/test_plan.md`.
-**Estratégia**: Foco inicial em testes unitários para regras de negócio críticas (validação de data e geração de protocolo) e testes de API para garantir a integridade dos contratos e segurança (autenticação).
+### 1. Instalar dependencias
 
-### Revisão de Código e Melhorias (RQNF8)
-Durante o desenvolvimento, identifiquei as seguintes melhorias possíveis:
-1. **Holidays API**: A validação de dias úteis atualmente só considera finais de semana. Integrar uma API de feriados nacionais/locais aumentaria a precisão.
-2. **Refresh Tokens**: Implementar refresh tokens para melhorar a experiência do usuário administrativo sem comprometer a segurança.
-3. **Logging**: Adicionar um sistema de logs robusto (Winston ou Pino) para monitoramento em produção.
-4. **Caching**: Utilizar Redis para cachear a lista de materiais, reduzindo a carga no banco.
+```bash
+npm install
+```
 
-### Relatório de Bugs (RQNF11)
-- **ID001**: O campo de telefone aceita caracteres não numéricos.
-  - **Severidade**: Baixa.
-  - **Correção Sugerida**: Aplicar máscara no frontend e sanitização via Regex no backend.
+### 2. Configurar `.env`
 
-### Requisitos Não Atendidos (RQNF12)
-- Todos os requisitos funcionais solicitados para o backend foram atendidos.
-- **RQNF13 (SonarQube)**: Não foi possível rodar o SonarQube localmente devido a restrições de tempo de processamento no ambiente atual, mas o código segue princípios de Clean Code.
+Preencha `DATABASE_URL` e `DIRECT_URL` com as URLs do seu projeto Neon.
 
-## Testes (RQNF2 e RQNF5)
-Para rodar os testes:
+### 3. Aplicar schema no banco
+
+Em banco vazio ou ambiente compartilhado, prefira:
+
+```bash
+npx prisma migrate deploy
+```
+
+Se estiver evoluindo schema localmente e criando novas migrations:
+
+```bash
+npx prisma migrate dev
+```
+
+### 4. Popular carga inicial
+
+```bash
+npm run db:seed
+```
+
+O seed cria:
+
+- Admin: `admin@coleta.com` / `admin123`
+- Materiais iniciais: Papel, Plastico, Vidro, Metal e Eletronicos
+
+### 5. Rodar a API
+
+```bash
+npm run dev
+```
+
+Swagger:
+
+```text
+http://localhost:3000/api-docs
+```
+
+## Build e execucao
+
+Gerar Prisma Client e compilar:
+
+```bash
+npm run build
+```
+
+Subir a API em modo de producao com migrations:
+
+```bash
+npm start
+```
+
+Subir apenas o servidor compilado, sem migrations:
+
+```bash
+npm run start:server
+```
+
+## Render + Neon
+
+### Configuracao do servico no Render
+
+- Build Command: `npm run build`
+- Start Command: `npm start`
+
+O comando de start executa:
+
+```bash
+prisma migrate deploy && node dist/src/server.js
+```
+
+### Variaveis de ambiente no Render
+
+Configure no painel do Render:
+
+```env
+DATABASE_URL=postgresql://...-pooler.../dbname?sslmode=require&channel_binding=require
+DIRECT_URL=postgresql://.../dbname?sslmode=require&channel_binding=require
+JWT_SECRET=<string-longa-e-aleatoria>
+GEMINI_API_KEY=<sua-chave-se-usar-ia>
+FRONTEND_URL=https://seu-frontend.com
+NODE_ENV=production
+PORT=3000
+```
+
+### Primeiro deploy em producao
+
+1. Garantir que `DATABASE_URL` e `DIRECT_URL` apontam para o projeto Neon correto.
+2. Fazer o deploy no Render.
+3. Confirmar nos logs que `prisma migrate deploy` executou sem erro.
+4. Executar o seed uma unica vez no ambiente de producao:
+
+```bash
+npm run db:seed
+```
+
+O seed e idempotente para `User` e `Material`, mas deve continuar sendo tratado como carga inicial unica.
+
+## Testes
+
 ```bash
 npm test
+npm run test:api
 ```
-- **Unitários**: Testam as regras de negócio do `CollectionService`.
-- **API**: Testam o endpoint de criação e validação de dados.
+
+## Estrutura relevante
+
+- `prisma/schema.prisma`: datasource PostgreSQL com `DATABASE_URL` e `DIRECT_URL`
+- `prisma/migrations/`: schema versionado do banco
+- `prisma/seed.ts`: carga inicial
+- `src/lib/prisma.ts`: client Prisma compartilhado
+
+## Observacoes operacionais
+
+- O `docker-compose.yml` pode continuar servindo para cenarios locais antigos, mas nao faz parte do fluxo de producao com Neon.
+- Para producao, use `prisma migrate deploy`, nao `prisma migrate dev`.
+- O frontend precisa apontar para a URL publica do backend no Render, e o backend precisa liberar essa origem em `FRONTEND_URL`.

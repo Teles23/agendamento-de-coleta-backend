@@ -1,18 +1,42 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:15-alpine
-    container_name: coleta_db
-    restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: coleta_db
-    ports:
-      - "5435:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: coleta_db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: coleta_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
 
-volumes:
-  postgres_data:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coleta_backend
+    restart: unless-stopped
+    ports:
+      - "3040:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:agendamento12@agendamento-coleta-postgres:5432/agendamento_coleta"
+      JWT_SECRET: "${JWT_SECRET}"
+      PORT: 3000
+    networks:
+    - qa-junior-01825-2025-060822575-45_default
+
+networks:
+  qa-junior-01825-2025-060822575-45_default:
+    external: true
+
+# volumes:
+#   postgres_data:

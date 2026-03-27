@@ -1,0 +1,217 @@
+Processo Seletivo
+01825/2025
+Etapa
+Avaliação Prática + Análise Documental
+Entidade
+SENAI
+Data
+ 01/08/2025
+Dados a serem preenchidos pelo Candidato (a):
+Nome Completo
+Thiago Teles Silva
+E-mail
+ HYPERLINK "mailto:thiagotelessilva@hotmail.com" 
+thiagotelessilva@hotmail.com
+CPF
+06082257545
+Olá, candidato (a)!
+Seja bem-vindo à etapa de 
+Avaliação Prática - Estudo de Caso
+ do Processo Seletivo 
+01825/2025 - Analista de Qualidade Software - Júnior
+.
+Informações Importantes
+:
+A prova online poderá ser realizada de qualquer computador com acesso à internet e não nos responsabilizamos por problemas de instabilidade de internet;
+O estudo de caso não poderá ser realizado por celulares ou tablets;
+Data limite para anexar a resolução da prova prática e documentação: 
+03/08/2025 às 23h59 (
+Para seguir no processo seletivo, é obrigatório enviar a resolução satisfatória do estudo de caso e toda a documentação solicitada dentro do prazo. Caso contrário, o candidato será desclassificado
+);
+Nos dias 
+06 e 07/08/2025
+ acontecerão as entrevistas individuais complementares, os horários serão disponibilizados via “informação complementar” após a finalização do prazo de envio do estudo de caso;
+A comprovação dos conhecimentos, será realizada também na entrevista via hangout. A participação da entrevista está condicionada ao envio da resolução do estudo de caso e da documentação;
+Critérios de Avaliação Prática: 
+Planejamento e Organização, Comunicação e Interação, Criatividade e Inovação, Conhecimento Técnico e Análise e Síntese. *O critério 'conhecimento técnico' tem peso 02.
+Após concluir o seu estudo de caso, siga os passos abaixo:
+Preencha seus dados (Nome Completo, E-mail e CPF) no início deste documento.
+Insira abaixo o link do github com a resolução do seu estudo de caso ⬇️⬇️
+Link GitHub:
+https://github.com/SENAI-SD/qa-junior-01825-2025-060.822.575-45
+Observação:
+ Ao publicar fique atento para mandar no repositório compartilhado com você e não no pessoal.
+Envie este documento preenchido, conforme os 
+itens 1 e 2
+, juntamente com os seguintes documentos via Sistema Pandapé:
+Documento oficial com foto
+ (RG ou CNH válida);
+Comprovante de escolaridade
+ (Ensino médio completo com graduação em andamento nas áreas de tecnologia ou áreas relacionadas; ou técnico em andamento nas áreas de tecnologia ou áreas relacionadas.).
+🚨ATENÇÃO🚨:
+ Todos os documentos devem ser enviados em um ÚNICO ARQUIVO PDF. O não envio do arquivo conforme solicitado nos itens 1, 2 e 3 mencionados acima, pelo Sistema Pandapé, resultará em desclassificação do processo seletivo.
+Orientações Avaliação Prática – Estudo de Caso:
+Resumo:
+- A prova consiste na criação de:
+Frontend da página;
+Backend para servir os dados para o frontend;
+Testes unitários dos códigos desenvolvidos;
+Testes automatizados E2E e API (Robot Framework - Cypress - Playwright).
+- O que será avaliado na aplicação:
+Funcional:
+Implementação correta dos requisitos funcionais e não funcionais definidos.
+Aplicação das regras de negócio com consistência.
+Funcionalidade básica e experiência do usuário.
+Qualidade do Código:
+Clareza e facilidade de leitura do código;
+Complexidade ciclomática e cognitiva controladas;
+Separação de responsabilidades entre camadas e componentes (ex: controllers, serviços, repositórios);
+Reutilização de código e ausência de duplicações;
+Organização geral da estrutura do projeto;
+Uso adequado de boas práticas de versionamento (Git);
+Aplicação de boas práticas de segurança (ex: autenticação, sanitização, tokens).
+Testes:
+Qualidade, cobertura e legibilidade dos testes unitários;
+Qualidade e estrutura dos testes automatizados de E2E e API;
+Clareza nos relatórios ou evidências de testes, se aplicável.
+Dicas:
+Foque na 
+qualidade
+ do que for implementado, e não na quantidade.
+Requisitos marcados como “opcionais” podem ser ignorados, mas são considerados diferenciais positivos.
+Deve ser desenvolvida uma aplicação WEB, que permita ao cidadão agendar a coleta de materiais recicláveis em sua residência, fornecendo informações básicas sobre o endereço, tipo de material e data desejada. O sistema deve aplicar validações, respeitar regras de negócio e proteger o acesso à listagem de agendamentos por meio de um sistema de autenticação.
+O sistema irá possuir:
+Uma aplicação web para agendamento de coleta de recicláveis, dividida em:
+Cadastro do agendamento de coleta pelo cidadão (sem autenticação);
+Autenticação de usuários com permissão para visualizar os agendamentos (nível administrativo);
+Listagem dos agendamentos;
+Detalhamento de cada agendamento;
+Requisitos não funcionais:
+RQNF1
+ - O sistema (backend e frontend) deve ser desenvolvido utilizando uma das seguintes linguagens orientadas a objeto: Java, PHP ou Javascript. O backend e frontend podem ser de linguagens diferentes. O banco de dados deverá ser o PostgreSQL.
+RQNF2
+ - Pelo menos 3 testes unitários com foco nas regras de negócio. Pode usar Jest, PHPUnit, JUnit, etc.
+RQNF3
+ - Todo retorno do backend deverá retornar um código HTTP de acordo com a resposta do servidor.
+RQNF4
+ - O frontend deve tratar todos os erros retornados pelo backend.
+RQNF5
+ - O backend deverá possuir pelo menos um teste de API automatizado.
+RQNF6
+ - O frontend deverá possuir testes E2E automatizados (Robot Framework - Cypress - Playwright).
+RQNF7
+ - A aplicação deverá possuir um arquivo “readme” para documentar a sua configuração.
+RQNF8 
+-
+ 
+Realize uma revisão de código na aplicação desenvolvida e aponte no “readme” do projeto, com suas palavras, possíveis melhorias no código fonte desenvolvido.
+RQNF9 - 
+Escreva em Gherkin especificações de uso e aponte no “readme” a localização da documentação versionada.
+RQNF10 - 
+Importante,
+ 
+crie um plano de testes visando entregar a aplicação com a maior cobertura possível e defina qual estratégia deve ser adotada para realizar os testes a curto prazo, elencando as prioridades. Aponte no “readme” a localização do arquivo versionado.
+RQNF11 - 
+Importante,
+ 
+fornecer um relatório descrevendo no “readme” do projeto pelo menos um bug identificado por um teste funcional manual na sua aplicação.
+RQNF12 
+- 
+Importante,
+ fornecer um relatório descrevendo no “readme” do projeto os requisitos (funcionais e não funcionais) que não foram atendidos e o motivo pelo qual não foi possível atendê-los.
+RQNF13 
+-
+ 
+Diferencial,
+ 
+utilizando a ferramenta 
+ HYPERLINK "https://docs.sonarsource.com/sonarqube-server/10.3/try-out-sonarqube/" \h 
+SonarQube
+, forneça um relatório no “readme” do projeto, apontando os problemas encontrados, e cite pontos prioritários de ajustes a curto prazo que tragam maior benefício com o menor risco possível para o projeto.
+RQNF14
+ - 
+Opcional
+, a criação da estrutura de banco de dados deverá ser feita através de 
+migrations
+.
+RQNF15
+ - 
+Opcional
+, as aplicações, frontend e backend, devem ser executadas via Docker em contêineres distintos.
+Requisitos Funcionais e Regras de Negócio – Sistema de Coletas Recicláveis:
+1. 
+Introdução
+:
+Este documento descreve os requisitos funcionais e regras de negócio para o sistema de agendamento de coletas de recicláveis. O objetivo é permitir que cidadãos agendem coletas de forma prática e que o sistema organize e proteja o acesso às informações, garantindo segurança, rastreabilidade e usabilidade.
+2. 
+Visão Geral do Fluxo
+O cidadão preenche um formulário com suas informações e solicita um agendamento de coleta.
+O sistema valida as informações e registra o agendamento como “Pendente”.
+Usuários autenticados podem acessar a listagem de agendamentos, com filtros.
+O sistema permite que usuários autenticados atualizem o status da coleta.
+O cidadão recebe um número de protocolo ao final do processo.
+3. 
+Requisitos Funcionais (RF) e Regras de Negócio (RN)
+RF001: Solicitar Agendamento de Coleta
+O sistema deve permitir que qualquer cidadão preencha um formulário para agendar a coleta.
+RN001.1: Os dados obrigatórios do formulário são:
+Nome completo
+Endereço (rua, número, bairro, cidade)
+Tipo de material reciclável (seleção múltipla)
+Data sugerida para a coleta
+Telefone de contato
+E-mail (opcional)
+RN001.2: A data sugerida deve ser pelo menos 2 dias úteis após a data atual.
+RN001.3: Os tipos de materiais disponíveis devem estar previamente definidos no sistema (ex: Papel, Plástico, Vidro, Metal, Eletrônicos).
+RN001.4: O sistema deve validar todos os campos obrigatórios antes de permitir o envio.
+RN001.5: Após o envio, o sistema deve gerar um número de protocolo único e exibir uma mensagem de confirmação.
+RN001.6: A confirmação deve conter o número do protocolo, data solicitada, e resumo dos dados fornecidos.
+RF002: Autenticação de Usuários
+O sistema deve ter um mecanismo simples de autenticação para proteger o acesso à área administrativa.
+RN002.1: O login deve ser realizado por meio de e-mail e senha. 
+Não é necessário implementar o cadastro de usuários
+: um usuário administrador pode ser previamente inserido no banco de dados, manualmente ou por seed.
+RN002.2: O backend não deve permitir acesso à listagem de agendamentos sem autenticação válida.
+RN002.3: O frontend deve redirecionar usuários não autenticados para a tela de login ao tentar acessar rotas protegidas.
+RF003: Armazenar e Listar Agendamentos
+O sistema deve armazenar as informações dos agendamentos e permitir que 
+usuários autenticados
+ acessem uma listagem.
+RN003.1: Apenas usuários autenticados poderão visualizar a listagem de agendamentos.
+RN003.2: A listagem deve exibir pelo menos: nome do cidadão, data da coleta, tipos de materiais e status atual.
+RN003.3: A listagem deve permitir filtros por data da coleta e status.
+RN003.4: O sistema deve ordenar os agendamentos por data da coleta (mais próximos primeiro) por padrão.
+RF004: Detalhamento do Agendamento
+O sistema deve permitir a visualização completa das informações de um agendamento específico.
+RN004.1: A tela de detalhe deve exibir todas as informações fornecidas pelo cidadão.
+RN004.2: A visualização deve estar disponível apenas para usuários autenticados.
+RF005: Atualizar Status da Coleta
+O sistema deve permitir que usuários autenticados atualizem o status de um agendamento.
+RN005.1: Os status possíveis são: “Pendente”, “Agendado”, “Concluído”, “Cancelado”.
+RN005.2: O sistema deve registrar a data e hora da última atualização de status.
+RN005.3: Ao atualizar o status para “Concluído” ou “Cancelado”, deve haver um campo para justificativa ou observações com preenchimento obrigatório.
+RF006: (Diferencial) Gerenciar Tipos de Materiais
+O sistema (ou um módulo administrativo) deve permitir o gerenciamento dos tipos de materiais recicláveis.
+RN006.1: Deve ser possível cadastrar, editar e remover tipos de materiais.
+RN006.2: Cada tipo de material pode ter uma descrição associada e uma categoria (orgânico, seco, eletrônico, etc.).
+4. 
+Regras de Negócio Gerais Adicionais
+RN-G01: Feedback ao Usuário
+RN-G01.1: O sistema deve fornecer feedback visual imediato para todas as ações do usuário (envio de formulário, login, filtros, etc.).
+RN-G01.2: Mensagens de erro devem ser claras, visíveis e descritivas (ex: "Data inválida", "Preencha todos os campos obrigatórios").
+RN-G02: Validação de Campos
+RN-G02.1: Sem campos obrigatórios preenchidos o sistema não deve cadastrar em branco de dados.
+RN-G02.2: O sistema deve validar o formato do telefone e da data.
+RN-G03: Estado da Aplicação
+RN-G03.1: O sistema deve manter o estado do formulário em caso de erro na submissão.
+5. 
+Protótipos (somente como sugestão de layout) 
+:
+As imagens a seguir são apenas referências visuais para auxiliar no entendimento da proposta.
+Você não precisa segui-las à risca, sinta-se livre para adaptar o layout e a interface conforme sua preferência, desde que a aplicação atenda aos requisitos funcionais descritos.
+OBSERVAÇÃO: 
+Ao publicar fique atento para mandar no repositório compartilhado com você e não no pessoal. 
+Boa Prova!
+_________
+🚨ATENÇÃO, NÃO ESQUEÇA!🚨
+Todos os documentos devem ser enviados em um ÚNICO ARQUIVO PDF. O não envio do arquivo conforme solicitado nos itens 1, 2 e 3 mencionados na primeira página deste documento, pelo Sistema Pandapé, resultará em desclassificação do processo seletivo.
