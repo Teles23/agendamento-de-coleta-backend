@@ -7,6 +7,7 @@ services:
       - .env
     command: >
       sh -c "
+        export PGPASSWORD=\"$$SHARED_POSTGRES_PASSWORD\";
         until pg_isready -h \"$$SHARED_POSTGRES_HOST\" -p \"$$SHARED_POSTGRES_PORT\" -U \"$$SHARED_POSTGRES_USER\"; do
           sleep 2;
         done;
