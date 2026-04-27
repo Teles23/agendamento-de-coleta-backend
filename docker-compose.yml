@@ -16,7 +16,7 @@ services:
         fi
       "
     networks:
-      - devportfolio_default
+      - shared
 
   backend:
     build:
@@ -33,7 +33,7 @@ services:
       - "3020:3020"
     networks:
       - default
-      - devportfolio_default
+      - shared
 
   frontend:
     build:
@@ -52,5 +52,5 @@ services:
 networks:
   default:
     name: coleta_default
-  devportfolio_default:
+  shared:
     external: true
